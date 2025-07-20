@@ -1,4 +1,4 @@
-package me.project.humanstarter.configuration;
+package me.project.humanstarter.util;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

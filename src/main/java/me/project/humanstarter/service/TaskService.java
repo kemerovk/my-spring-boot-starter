@@ -13,7 +13,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-//переписать
+//переписать на PriorityQueue;
 
 @Slf4j
 @Service

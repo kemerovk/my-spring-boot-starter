@@ -2,7 +2,7 @@ package me.project.humanstarter.annotations;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import me.project.humanstarter.configuration.TimeValidator;
+import me.project.humanstarter.util.TimeValidator;
 
 import java.lang.annotation.*;
 
