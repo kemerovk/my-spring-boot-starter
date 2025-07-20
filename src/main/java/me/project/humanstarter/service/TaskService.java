@@ -4,44 +4,42 @@ import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import me.project.humanstarter.data.Command;
-import me.project.humanstarter.data.Priority;
 import me.project.humanstarter.exceptions.QueueOverflowException;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.Executors;
-
-//переписать на PriorityQueue;
 
 @Slf4j
 @Service
 public class TaskService {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final BlockingQueue<Command> queue = new ArrayBlockingQueue<>(100);
+    private final PriorityBlockingQueue<Command> queue = new PriorityBlockingQueue<>();
 
     public void process(@Valid Command command) throws QueueOverflowException {
-        if (command.priority() == Priority.CRITICAL) {
-            log.info("Executing CRITICAL command immediately from {}", command.author());
-            executor.submit(() -> logCommand(command));
-        } else {
-            if (!queue.offer(command)) {
-                log.warn("Queue overflow: unable to enqueue command from {}", command.author());
-                throw new QueueOverflowException();
-            }
-            log.info("Queued COMMON command from {}", command.author());
+        if (!queue.offer(command)) {
+            log.warn("Queue overflow: unable to enqueue command from {}", command.author());
+            throw new QueueOverflowException("Command queue is full");
         }
+        log.info("Queued command '{}' from '{}', priority: {}", command.description(), command.author(), command.priority());
     }
 
     @PostConstruct
     public void startQueueProcessor() {
-        Executors.newSingleThreadExecutor().submit(() -> {
-            while (true) {
+        try {
+            Thread.sleep(10000);
+        }
+        catch (InterruptedException e) {
+            log.error("Thread interrupted", e);
+        }
+        executor.submit(() -> {
+            log.info("Command queue processor started");
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
                     Command cmd = queue.take();
-                    logCommand(cmd);
+                    executeCommand(cmd);
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -52,11 +50,12 @@ public class TaskService {
                 }
             }
         });
-        log.info("Command queue processor started");
     }
 
-    private void logCommand(Command command) {
+    private void executeCommand(Command command) {
         log.info("Executing command: [author={}, priority={}, description={}, time={}]",
                 command.author(), command.priority(), command.description(), command.time());
     }
 }
+
+
