@@ -9,7 +9,8 @@ public record Command(
         @Size(min = 1, max = 1000, message = "Description must be between 1 and 1000 characters") String description,
         Priority priority,
         @Size(min = 3, max = 100, message = "Author must be between 3 and 100 characters") String author,
-        @ValidTime String time) implements Comparable<Command> {
+        @ValidTime String time)
+        implements Comparable<Command> {
 
     @Override
     public int compareTo(Command other) {

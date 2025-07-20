@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.project.humanstarter.annotations.KafkaAudit;
 import me.project.humanstarter.annotations.WeylandWatchingYou;
 import me.project.humanstarter.data.AuditMode;
-import me.project.humanstarter.exceptions.NoTopicSpecifiedException;
+import me.project.humanstarter.exceptions.KafkaPropertiesException;
 import me.project.humanstarter.service.KafkaProducerService;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -38,7 +38,7 @@ public class WeylandAnnotationAspect {
             if (!method.isAnnotationPresent(KafkaAudit.class)) {
                 String className = method.getDeclaringClass().getSimpleName();
                 String methodName = method.getName();
-                throw new NoTopicSpecifiedException(
+                throw new KafkaPropertiesException(
                         "Method " + className + "." + methodName + " uses KAFKA audit but is missing @KafkaAudit annotation"
                 );
             } else {
@@ -49,8 +49,12 @@ public class WeylandAnnotationAspect {
         }
 
         else {
-            log.info("Method name: {}" +
-                    "\nMethod arguments: {}", pjp.getSignature(), pjp.getArgs());
+            if (!method.isAnnotationPresent(KafkaAudit.class)) {
+                log.info("Method name: {}" +
+                        "\nMethod arguments: {}", pjp.getSignature(), pjp.getArgs());
+            }
+            else throw new KafkaPropertiesException("cannot use @KafkaAudit annotation with AuditMode.CONSOLE");
+
         }
 
         return pjp.proceed();
@@ -80,7 +84,7 @@ public class WeylandAnnotationAspect {
 
         Method method = ((MethodSignature) jp.getSignature()).getMethod();
 
-        if (method.isAnnotationPresent(KafkaAudit.class)) {
+        if (!method.isAnnotationPresent(KafkaAudit.class)) {
             log.info("Method: {} thrown exception: {}", method, e.getMessage());
         }
         else {

@@ -4,11 +4,13 @@ import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.project.humanstarter.data.BoundedPriorityBlockingQueue;
 import me.project.humanstarter.data.Command;
 import me.project.humanstarter.exceptions.QueueOverflowException;
 import org.aspectj.lang.annotation.After;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,10 +18,11 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 @Slf4j
 @Service
+@Validated
 public class TaskService {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final PriorityBlockingQueue<Command> queue = new PriorityBlockingQueue<>();
+    private final BoundedPriorityBlockingQueue<Command> queue = new BoundedPriorityBlockingQueue<>(100);
 
     @Autowired
     private MetricsService metricsService;
