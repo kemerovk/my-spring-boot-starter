@@ -1,6 +1,6 @@
 package me.project.humanstarter.exceptions;
 
-public class QueueOverflowException extends Exception {
+public class QueueOverflowException extends RuntimeException {
     public QueueOverflowException(String msg) {
         super(msg);
     }

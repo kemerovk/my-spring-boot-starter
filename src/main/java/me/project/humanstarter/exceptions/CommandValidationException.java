@@ -1,6 +1,6 @@
 package me.project.humanstarter.exceptions;
 
-public class CommandValidationException extends Exception {
+public class CommandValidationException extends RuntimeException {
     public CommandValidationException() {
 
     }

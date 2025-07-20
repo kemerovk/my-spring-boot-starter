@@ -1,11 +1,14 @@
-package me.project.humanstarter.annotations;
+package me.project.humanstarter.configuration;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import me.project.humanstarter.annotations.ValidTime;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 
+@Component
 public class TimeValidator implements ConstraintValidator<ValidTime, String> {
 
     @Override

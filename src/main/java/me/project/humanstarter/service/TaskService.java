@@ -1,6 +1,7 @@
 package me.project.humanstarter.service;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import me.project.humanstarter.data.Command;
 import me.project.humanstarter.data.Priority;
@@ -12,6 +13,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+//переписать
+
 @Slf4j
 @Service
 public class TaskService {
@@ -19,9 +22,10 @@ public class TaskService {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final BlockingQueue<Command> queue = new ArrayBlockingQueue<>(100);
 
-    public void process(Command command) throws QueueOverflowException {
+    public void process(@Valid Command command) throws QueueOverflowException {
         if (command.priority() == Priority.CRITICAL) {
-            logCommand(command);
+            log.info("Executing CRITICAL command immediately from {}", command.author());
+            executor.submit(() -> logCommand(command));
         } else {
             if (!queue.offer(command)) {
                 log.warn("Queue overflow: unable to enqueue command from {}", command.author());
@@ -38,6 +42,7 @@ public class TaskService {
                 try {
                     Command cmd = queue.take();
                     logCommand(cmd);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("Command processor thread interrupted", e);
@@ -53,8 +58,5 @@ public class TaskService {
     private void logCommand(Command command) {
         log.info("Executing command: [author={}, priority={}, description={}, time={}]",
                 command.author(), command.priority(), command.description(), command.time());
-      //  MetricsRegistry.incrementExecuted(command.author());
     }
-
-
 }
