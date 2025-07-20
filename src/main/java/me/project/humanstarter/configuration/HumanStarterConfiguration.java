@@ -1,6 +1,8 @@
 package me.project.humanstarter.configuration;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import me.project.humanstarter.data.KafkaProperties;
+import me.project.humanstarter.service.MetricsService;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,6 +22,11 @@ public class HumanStarterConfiguration {
     @Bean
     public NewTopic humanStarterTopic() {
         return TopicBuilder.name(kafkaProperties.getTopic()).build();
+    }
+
+    @Bean
+    public MetricsService metricsService(MeterRegistry registry) {
+        return new MetricsService(registry);
     }
 
 
